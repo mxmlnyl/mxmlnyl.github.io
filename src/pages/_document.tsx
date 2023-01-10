@@ -19,7 +19,7 @@ export default function Document() {
           name="description"
           content="Maximiliano Ayalas knowledge transfer"
         />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
       </Head>
       <body>
         <Main />

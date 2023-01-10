@@ -11,5 +11,4 @@
     "source.fixAll": true
   },
   "typescript.tsdk": "node_modules/typescript/lib",
-  "java.configuration.updateBuildConfiguration": "automatic"
 }
