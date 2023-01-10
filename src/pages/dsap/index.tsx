@@ -1,6 +1,6 @@
 import Head from '@components/head';
 import Layout from '@components/dsap/layout';
-import { DsapTitle} from '@components/dsap/primitives';
+import { DsapTitle, QuestionCounterWrap, NextQuestionButton} from '@components/dsap/primitives';
 import EditorComponent from '@components/editor';
 
 const DSAP = () => {
@@ -10,6 +10,13 @@ const DSAP = () => {
     <Layout>
       <div>
         <DsapTitle>DSAP</DsapTitle>
+        <QuestionCounterWrap>
+          <span>1 of 3</span>
+          <NextQuestionButton>&#8677;</NextQuestionButton>
+        </QuestionCounterWrap>
+
+
+
       </div>
       <div>
         <EditorComponent code={'test()'} test height={'500px'} />
