@@ -1,6 +1,7 @@
 import Head from 'next/head';
+import type {ReactElement} from 'react';
 
-export default function Home() {
+const Home = () => {
   return (
     <>
       <Head>
@@ -17,4 +18,10 @@ export default function Home() {
       </main>
     </>
   );
-}
+};
+
+Home.getLayout = function getLayout(page: ReactElement) {
+  return <div>{page}</div>;
+};
+
+export default Home;
