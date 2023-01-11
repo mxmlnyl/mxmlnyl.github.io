@@ -1,22 +1,20 @@
-import {
-  MDXRemote,
-  MDXRemoteProps,
-  MDXRemoteSerializeResult,
-} from 'next-mdx-remote';
+import { MDXRemote, MDXRemoteSerializeResult } from 'next-mdx-remote';
 import { serialize } from 'next-mdx-remote/serialize';
 import { GetStaticPaths, GetStaticProps } from 'next';
-import matter from 'gray-matter';
-
+import {
+  BlogPostFrontmatter,
+  findAllPostSlugs,
+  loadMdxFromSlug,
+} from '../../utils';
 type BlogPostProps = {
   source: MDXRemoteSerializeResult;
   frontMatter: BlogPostFrontmatter;
 };
-
 export default function BlogPost({ source, frontMatter }: BlogPostProps) {
   console.log(frontMatter);
   return (
-    <div>
-      <div>
+    <div className="flex min-h-screen w-full items-center justify-center dark:bg-stone-900">
+      <div className="prose prose-invert h-full w-full rounded border border-stone-700 p-10 shadow dark:bg-stone-800">
         <h1>{frontMatter.title}</h1>
         <h2>{frontMatter.description}</h2>
         <MDXRemote {...source} />

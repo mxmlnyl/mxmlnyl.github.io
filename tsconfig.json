@@ -18,6 +18,7 @@
     "paths": {
       "@components/*": ["src/components/*"],
       "@questions/*": ["src/questions/*"],
+      "@utils": ["src/utils"],
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
