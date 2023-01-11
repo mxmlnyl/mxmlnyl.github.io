@@ -1,5 +1,8 @@
 import styled from 'styled-components';
 
+export const EditorWrap = styled.div({
+  fontFamily: 'Source Code Pro',
+});
 
 export const ActionButtonWrap = styled.div({
   display: 'flex',
@@ -7,13 +10,12 @@ export const ActionButtonWrap = styled.div({
   justifyContent: 'space-between',
   padding: '1em',
   borderTop: '1px solid black',
-  borderBottom: '1px solid black'
-})
+  borderBottom: '1px solid black',
+});
 
 export const RunButton = styled.div({
   background: 'black',
   color: 'white',
   padding: '0.5em',
-  display: 'flex'
+  display: 'flex',
 });
-

@@ -1,4 +1,4 @@
-import { Html, Head, Main, NextScript } from "next/document";
+import { Html, Head, Main, NextScript } from 'next/document';
 
 export default function Document() {
   return (
@@ -11,7 +11,7 @@ export default function Document() {
           crossOrigin="anonymous"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&family=Source+Code+Pro:wght@400;500&display=swap"
           rel="stylesheet"
         />
 
@@ -19,7 +19,6 @@ export default function Document() {
           name="description"
           content="Maximiliano Ayalas knowledge transfer"
         />
-
       </Head>
       <body>
         <Main />
