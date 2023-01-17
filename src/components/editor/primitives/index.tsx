@@ -18,4 +18,5 @@ export const RunButton = styled.div({
   color: 'white',
   padding: '0.5em',
   display: 'flex',
+  cursor: 'pointer',
 });
