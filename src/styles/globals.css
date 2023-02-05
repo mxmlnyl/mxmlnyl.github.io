@@ -98,17 +98,18 @@ pre {
   all: revert;
 }
 
-* {
+body {
   font-family: 'Manrope', Arial, Helvetica, sans-serif;
   font-size: 14px;
   font-weight: 400;
   line-height: 24px;
   letter-spacing: 0.03em;
   text-align: left;
-
 }
-body {
-  padding: 60px;
+
+.monaco-editor > * {
+  font-family: 'Source Code Pro';
+  font-weight: 400
 }
 
 h1 {
