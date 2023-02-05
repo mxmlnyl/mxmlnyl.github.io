@@ -14,8 +14,8 @@ const sampleQuestion: Question = {
   boilerPlate: ` const test = (s: string) => {
 
   }`,
-  testInputs: [['yo', ['test']]],
-  tests: ['yo'],
+  testInputs: [['yo'], ['test']],
+  tests: ['yo', 'test'],
 };
 
 // single param with array

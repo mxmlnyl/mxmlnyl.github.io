@@ -1,13 +1,21 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import ts from 'typescript';
 import Editor from '@monaco-editor/react';
-import { js as Beautify } from 'js-beautify';
+import {js as Beautify} from 'js-beautify';
 import IsEqual from 'lodash.isequal';
-import { EditorWrap, ActionButtonWrap, RunButton } from './primitives';
-import { Question } from '@questions/index';
+import {
+  EditorWrap,
+  ActionButtonWrap,
+  RunButton,
+  ResultWrap,
+  ResultItem,
+  ResultItemHeader,
+  ResultBody,
+} from './primitives';
+import {Question} from '@questions/index';
 
-const options = { indent_size: 2, space_in_empty_paren: true };
-type EditorType = { getValue: () => string };
+const options = {indent_size: 2, space_in_empty_paren: true};
+type EditorType = {getValue: () => string};
 
 const EditorComponent = ({
   code,
@@ -23,25 +31,36 @@ const EditorComponent = ({
   question: Question;
 }) => {
   const [output, setOutput] = useState<Boolean | string>(false);
+  const [testResults, setTestResults] = useState<
+    {test: string; expected: string; received: string; result: boolean}[] | null
+  >(null);
   const editorRef = React.useRef<EditorType | null>(null);
 
-  const runCode = (): void => {
+  const getCodeRunner = (injectedCode: string = '') => {
     const value = editorRef.current?.getValue();
     const transpiledCode = ts.transpile(value ?? '');
     const testCode = `
       ${transpiledCode}
-      return ${question.testName};
+      ${injectedCode}
     `;
 
-    const testCodeRunner = new Function(testCode)();
+    return new Function(testCode)();
+  };
 
-    question.testInputs?.forEach((input, idx) => {
+  const testCode = (): void => {
+    const testCodeRunner = getCodeRunner(`return ${question.testName};`);
+    const testResults = question.testInputs?.map((input, idx) => {
       const testResult = testCodeRunner(...input);
       const testExpect = question.tests[idx];
-      console.log({ testExpect });
-      console.log({ testResult });
-      console.log(IsEqual(testResult, testExpect));
+
+      return {
+        test: `${input}`,
+        expected: `${testExpect}`,
+        received: `${testResult}`,
+        result: IsEqual(testResult, testExpect),
+      };
     });
+    setTestResults(testResults);
   };
 
   const SetRef = (editor: EditorType) => {
@@ -49,8 +68,35 @@ const EditorComponent = ({
   };
 
   const clearResults = (): void => {
-    setOutput(false);
+    setTestResults(null);
   };
+
+  const results = React.useMemo(() => {
+    if (!testResults) return null;
+    return testResults.map((result, idx) => {
+      return (
+        <ResultItem key={`result-${idx}`} success={result.result}>
+          <ResultItemHeader success={result.result}>
+            Test <span>{idx + 1}</span>
+          </ResultItemHeader>
+          <ResultBody>
+            <span>
+              Input: <br />
+              <span>{result.test}</span>
+            </span>
+            <span>
+              Expected: <br />
+              <span>{result.expected}</span>
+            </span>
+            <span>
+              Received: <br />
+              <span>{result.received}</span>
+            </span>
+          </ResultBody>
+        </ResultItem>
+      );
+    });
+  }, [testResults]);
 
   return (
     <>
@@ -64,9 +110,11 @@ const EditorComponent = ({
       </EditorWrap>
 
       <ActionButtonWrap>
-        <RunButton onClick={runCode}>Run Code</RunButton>
-        <RunButton>Test Code</RunButton>
+        <RunButton onClick={clearResults}>Test Code</RunButton>
+        <RunButton onClick={testCode}>Test Code</RunButton>
       </ActionButtonWrap>
+
+      <ResultWrap>{results}</ResultWrap>
     </>
   );
 };

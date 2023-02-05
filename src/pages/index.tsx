@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import type {ReactElement} from 'react';
-
+import HomeLayout from '@components/home/layout';
 const Home = () => {
   return (
     <>
@@ -20,8 +20,6 @@ const Home = () => {
   );
 };
 
-Home.getLayout = function getLayout(page: ReactElement) {
-  return <div>{page}</div>;
-};
+Home.getLayout = 'Home';
 
 export default Home;

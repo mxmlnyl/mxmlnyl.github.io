@@ -3,9 +3,9 @@ import type {ReactElement, ReactNode} from 'react';
 import type {NextPage} from 'next';
 import type {AppProps} from 'next/app';
 import {MDXProvider} from '@mdx-js/react';
-
+import HomeLayout from '@components/home/layout';
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
-  getLayout?: (page: ReactElement) => ReactNode;
+  getLayout?: string;
 };
 
 type AppPropsWithLayout = AppProps & {
@@ -13,12 +13,16 @@ type AppPropsWithLayout = AppProps & {
 };
 
 export default function App({Component, pageProps}: AppPropsWithLayout) {
-  const getLayout = Component.getLayout ?? 'blogPost';
-
-  console.log(getLayout);
+  const Layout = Component.getLayout ?? 'default';
+  const LayoutComponent =
+    Layout === 'Home'
+      ? HomeLayout
+      : ({children}: {children: ReactElement}) => <div>{children}</div>;
   return (
     <MDXProvider>
-      <Component {...pageProps} />
+      <LayoutComponent>
+        <Component {...pageProps} />
+      </LayoutComponent>
     </MDXProvider>
   );
 }
