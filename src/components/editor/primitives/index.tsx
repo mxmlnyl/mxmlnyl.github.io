@@ -58,3 +58,8 @@ export const ResultBody = styled.div({
     padding: '0.5em',
   },
 });
+
+export const OutputWrap = styled.div({
+  padding: '1em',
+  background: '#efefef',
+});

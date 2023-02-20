@@ -1,6 +1,5 @@
 import Head from 'next/head';
-import type {ReactElement} from 'react';
-import HomeLayout from '@components/home/layout';
+import Link from 'next/link';
 const Home = () => {
   return (
     <>
@@ -14,6 +13,9 @@ const Home = () => {
         <h1>Maximiliano Ayala</h1>
         <p>
           <a href="mailto:hello@mxmlnyl.com">hello@mxmlnyl.com</a>
+        </p>
+        <p>
+          <Link href="/dsap">DSAP</Link>
         </p>
       </main>
     </>

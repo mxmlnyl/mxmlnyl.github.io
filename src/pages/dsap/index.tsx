@@ -9,7 +9,7 @@ import {
   QuestionTitle,
 } from '@components/dsap/primitives';
 import EditorComponent from '@components/editor';
-import questions from '@questions/index';
+import questions from '@dsapPrompts';
 import React from 'react';
 
 function randomIntFromInterval(min: number, max: number) {
@@ -22,7 +22,6 @@ const DSAP = ({initialIdx}: {initialIdx: number}) => {
 
   const genNextQuestion = (): number | undefined => {
     const potential = randomIntFromInterval(0, questions.length);
-    console.log({potential});
     if (seenQuestions.has(potential)) {
       return genNextQuestion();
     }
@@ -36,7 +35,6 @@ const DSAP = ({initialIdx}: {initialIdx: number}) => {
 
   const onNextQuestion = () => {
     const nextIdx = genNextQuestion();
-    console.log({seenQuestions: seenQuestions.size, nextIdx});
     if (nextIdx) {
       setIdx(nextIdx);
       setSeenQuestion(new Set([...Array.from(seenQuestions), nextIdx]));
@@ -65,7 +63,7 @@ const DSAP = ({initialIdx}: {initialIdx: number}) => {
           </QuestionPromptWrap>
         </div>
         <div>
-          <EditorComponent question={questions[0]} test height={'500px'} />
+          <EditorComponent code="" test={false} height={'500px'} />
         </div>
       </Layout>
     </>
@@ -76,7 +74,7 @@ export async function getStaticProps() {
   return {
     props: {
       initialIdx: randomIntFromInterval(0, questions.length - 1),
-    }, // will be passed to the page component as props
+    },
   };
 }
 export default DSAP;

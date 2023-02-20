@@ -11,8 +11,10 @@ import {
   ResultItem,
   ResultItemHeader,
   ResultBody,
+  OutputWrap,
 } from './primitives';
 import {Question} from '@questions/index';
+import Logger from './util/logger';
 
 const options = {indent_size: 2, space_in_empty_paren: true};
 type EditorType = {getValue: () => string};
@@ -28,27 +30,36 @@ const EditorComponent = ({
   test: boolean;
   height: string;
   editable?: boolean;
-  question: Question;
+  question?: Question;
 }) => {
-  const [output, setOutput] = useState<Boolean | string>(false);
+  const [output, setOutput] = useState<null | string>(null);
   const [testResults, setTestResults] = useState<
     {test: string; expected: string; received: string; result: boolean}[] | null
   >(null);
   const editorRef = React.useRef<EditorType | null>(null);
 
-  const getCodeRunner = (injectedCode: string = '') => {
+  const getCodeRunner = ({
+    injectedPrefix,
+    injectedSuffix,
+  }: {
+    injectedPrefix?: string;
+    injectedSuffix?: string;
+  }) => {
     const value = editorRef.current?.getValue();
-    const transpiledCode = ts.transpile(value ?? '');
+    const transpiledCode = ts.transpile(value ?? '', {
+      alwaysStrict: true,
+    });
     const testCode = `
+      ${injectedPrefix ?? ''}
       ${transpiledCode}
-      ${injectedCode}
+      ${injectedSuffix ?? ''}
     `;
 
-    return new Function(testCode)();
+    return new Function(testCode);
   };
-
+  /*
   const testCode = (): void => {
-    const testCodeRunner = getCodeRunner(`return ${question.testName};`);
+    const testCodeRunner = getCodeRunner({injectedSuffix: `return ${question.testName};`});
     const testResults = question.testInputs?.map((input, idx) => {
       const testResult = testCodeRunner(...input);
       const testExpect = question.tests[idx];
@@ -61,14 +72,40 @@ const EditorComponent = ({
       };
     });
     setTestResults(testResults);
+  }; */
+
+  const runCode = (): void => {
+    const codeRunner = getCodeRunner({
+      injectedPrefix: Logger,
+      injectedSuffix: 'return newConsole.queue;',
+    });
+
+    const result = codeRunner();
+    setOutput(result.join('\n'));
   };
 
   const SetRef = (editor: EditorType) => {
     editorRef.current = editor;
+    /* @ts-ignore
+    editor.languages.typescript.javascriptDefaults.setCompilerOptions({
+      // @ts-ignore
+      target: editor.languages.typescript.ScriptTarget.ES6,
+      allowNonTsExtensions: true,
+      alwaysStrict: true,
+      noUnusedParameters: true,
+      noImplicitUseStrict: true,
+      noUnusedLocals: true,
+    });
+    */
+    console.log(editor);
   };
 
-  const clearResults = (): void => {
+  /*const clearResults = (): void => {
     setTestResults(null);
+  }; */
+
+  const clearOutput = (): void => {
+    setOutput(null);
   };
 
   const results = React.useMemo(() => {
@@ -104,17 +141,18 @@ const EditorComponent = ({
         <Editor
           height={height}
           defaultLanguage="typescript"
-          defaultValue={Beautify(test ? question.boilerPlate : code, options)}
+          defaultValue={Beautify(test ? question?.boilerPlate : code, options)}
           onMount={SetRef}
         />
       </EditorWrap>
 
       <ActionButtonWrap>
-        <RunButton onClick={clearResults}>Test Code</RunButton>
-        <RunButton onClick={testCode}>Test Code</RunButton>
+        <RunButton onClick={clearOutput}>Clear Output</RunButton>
+        <RunButton onClick={runCode}>Run Code</RunButton>
       </ActionButtonWrap>
 
       <ResultWrap>{results}</ResultWrap>
+      {output ? <OutputWrap>{output}</OutputWrap> : null}
     </>
   );
 };
