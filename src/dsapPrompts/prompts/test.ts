@@ -1,7 +1,7 @@
 import {Prompt} from '../types';
 
 const implementArray: Prompt = {
-  title: 'Implement an array 2',
+  title: 'Implement an array',
   prompt: `
   This array should implement the following methods : <br /><br />
   <code>
@@ -14,6 +14,12 @@ const implementArray: Prompt = {
   </code>
   `,
   solution: '',
+  boilerPlate: `
+    const test = (val: string) => { console.log(val) }
+  `,
+  boilerPlateFunctionName: 'test',
+  testInputs: [['yo'], ['test']],
+  testExpects: ['yo', 'test'],
 };
 
 export default implementArray;

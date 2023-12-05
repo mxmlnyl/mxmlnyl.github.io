@@ -40,6 +40,11 @@ const DSAP = ({initialIdx}: {initialIdx: number}) => {
       setSeenQuestion(new Set([...Array.from(seenQuestions), nextIdx]));
     }
   };
+
+  const CurrentQuestion = React.useMemo(() => {
+    return questions[currentIdx];
+  }, [currentIdx]);
+
   return (
     <>
       <Head title="Datastructure & Algorithm Practice" />
@@ -63,7 +68,12 @@ const DSAP = ({initialIdx}: {initialIdx: number}) => {
           </QuestionPromptWrap>
         </div>
         <div>
-          <EditorComponent code="" test={false} height={'500px'} />
+          <EditorComponent
+            code={CurrentQuestion.boilerPlate ?? ''}
+            testName={CurrentQuestion.boilerPlateFunctionName}
+            testInputs={CurrentQuestion.testInputs}
+            testExpects={CurrentQuestion.testExpects} test={false} height={'500px'}
+          />
         </div>
       </Layout>
     </>

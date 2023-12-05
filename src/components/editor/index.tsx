@@ -16,13 +16,16 @@ import {
 import {Question} from '@questions/index';
 import Logger from './util/logger';
 
-const options = {indent_size: 2, space_in_empty_paren: true};
-type EditorType = {getValue: () => string};
+const options = {indent_size: 2, space_in_empty_paren: true, matchBrackets: 'always'};
+type EditorType = {getValue: () => string, getModel: () => ({ setValue: (val: any) => any})};
 
 const EditorComponent = ({
   code,
   height = '500px',
   editable = true,
+  testName,
+  testInputs,
+  testExpects,
   test = false,
   question,
 }: {
@@ -31,14 +34,24 @@ const EditorComponent = ({
   height: string;
   editable?: boolean;
   question?: Question;
+  testName?: string | undefined;
+  testInputs?: Array<any>;
+  testExpects?: Array<any>;
 }) => {
   const [output, setOutput] = useState<null | string>(null);
   const [testResults, setTestResults] = useState<
-    {test: string; expected: string; received: string; result: boolean}[] | null
-  >(null);
+    ({test: string; expected: string; received: string; result: boolean} | undefined)[] | undefined
+  >(undefined);
   const editorRef = React.useRef<EditorType | null>(null);
 
-  const getCodeRunner = ({
+  React.useEffect(() => {
+    if (editorRef.current) {
+      editorRef.current.getModel().setValue(code ?? '');
+    }
+  }, [code]);
+
+
+  const getCodeRunnerString = ({
     injectedPrefix,
     injectedSuffix,
   }: {
@@ -49,60 +62,61 @@ const EditorComponent = ({
     const transpiledCode = ts.transpile(value ?? '', {
       alwaysStrict: true,
     });
-    const testCode = `
+    return `
       ${injectedPrefix ?? ''}
       ${transpiledCode}
       ${injectedSuffix ?? ''}
     `;
-
-    return new Function(testCode);
   };
-  /*
-  const testCode = (): void => {
-    const testCodeRunner = getCodeRunner({injectedSuffix: `return ${question.testName};`});
-    const testResults = question.testInputs?.map((input, idx) => {
-      const testResult = testCodeRunner(...input);
-      const testExpect = question.tests[idx];
 
-      return {
-        test: `${input}`,
-        expected: `${testExpect}`,
-        received: `${testResult}`,
-        result: IsEqual(testResult, testExpect),
-      };
+  const testCode = (): void => {
+    if (!testExpects) return;
+    const codeRunner = getCodeRunnerString({});
+    const testResults = testInputs?.map((input, idx) => {
+      const testCode = `
+        ${codeRunner}
+        ${testName}(...input);
+      `;
+      try {
+        const testResult = eval(testCode);
+        const currentExpect = testExpects[idx];
+
+        return {
+          test: `${input}`,
+          expected: `${currentExpect}`,
+          received: `${testResult}`,
+          result: IsEqual(testResult, currentExpect),
+        };
+      } catch (e) {
+        console.log(e);
+      }
     });
-    setTestResults(testResults);
-  }; */
+
+    if (testResults) {
+
+      setTestResults(testResults);
+    }
+  };
 
   const runCode = (): void => {
-    const codeRunner = getCodeRunner({
+    const codeRunner = getCodeRunnerString({
       injectedPrefix: Logger,
       injectedSuffix: 'return newConsole.queue;',
     });
 
-    const result = codeRunner();
+    const runner = new Function(codeRunner);
+    const result = runner();
+
     setOutput(result.join('\n'));
   };
 
   const SetRef = (editor: EditorType) => {
     editorRef.current = editor;
-    /* @ts-ignore
-    editor.languages.typescript.javascriptDefaults.setCompilerOptions({
-      // @ts-ignore
-      target: editor.languages.typescript.ScriptTarget.ES6,
-      allowNonTsExtensions: true,
-      alwaysStrict: true,
-      noUnusedParameters: true,
-      noImplicitUseStrict: true,
-      noUnusedLocals: true,
-    });
-    */
-    console.log(editor);
   };
 
-  /*const clearResults = (): void => {
-    setTestResults(null);
-  }; */
+  const clearResults = (): void => {
+    setTestResults(undefined);
+  };
 
   const clearOutput = (): void => {
     setOutput(null);
@@ -111,6 +125,7 @@ const EditorComponent = ({
   const results = React.useMemo(() => {
     if (!testResults) return null;
     return testResults.map((result, idx) => {
+      if (!result) return null;
       return (
         <ResultItem key={`result-${idx}`} success={result.result}>
           <ResultItemHeader success={result.result}>
@@ -141,7 +156,8 @@ const EditorComponent = ({
         <Editor
           height={height}
           defaultLanguage="typescript"
-          defaultValue={Beautify(test ? question?.boilerPlate : code, options)}
+          defaultValue={Beautify( code, options)}
+          // @ts-ignore-next-line
           onMount={SetRef}
         />
       </EditorWrap>
@@ -149,6 +165,8 @@ const EditorComponent = ({
       <ActionButtonWrap>
         <RunButton onClick={clearOutput}>Clear Output</RunButton>
         <RunButton onClick={runCode}>Run Code</RunButton>
+        <RunButton onClick={testCode}>Test Code</RunButton>
+        <RunButton onClick={clearResults}>Clear Test Results</RunButton>
       </ActionButtonWrap>
 
       <ResultWrap>{results}</ResultWrap>
